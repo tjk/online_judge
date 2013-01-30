@@ -7,7 +7,7 @@
 
 using namespace std;
 
-static map<int,int> ccs;
+map<int,int> ccs;
 
 int cc(int n)
 {
