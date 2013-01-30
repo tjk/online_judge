@@ -6,6 +6,6 @@ Repository used to track my progress through the http://uva.onlinejudge.org/ pro
 running solutions
 -----------------
 
-% cd $PROBLEM_DIR
-% g++ -lm -lcrypt -O2 -pipe -DONLINE_JUDGE main.cpp
-% ./a.out < input.txt
+    % cd $PROBLEM_DIR
+    % g++ -lm -lcrypt -O2 -pipe -DONLINE_JUDGE main.cpp
+    % ./a.out < input.txt
