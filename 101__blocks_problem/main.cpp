@@ -18,7 +18,7 @@ void draw()
         cout << i << ":";
         for (it = ps[i].begin(); it != ps[i].end(); it++)
             cout << " " << *it;
-        cout << "\n";
+        cout << endl;
     }
 }
 

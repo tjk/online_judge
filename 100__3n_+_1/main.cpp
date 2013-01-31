@@ -38,7 +38,7 @@ int main()
             if (cl > max)
                 max = cl;
         }
-        cout << _i << " " << _j << " " << max << "\n";
+        cout << _i << " " << _j << " " << max << endl;
     }
     return 0;
 }
