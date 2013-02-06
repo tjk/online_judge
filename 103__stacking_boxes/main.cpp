@@ -7,17 +7,12 @@ using namespace std;
 
 // NOTE algo wrong (look at wrong.txt)
 
-int sum(const vector<int> &v)
+bool seqSort(const pair<vector<int>,int> &pi, const pair<vector<int>,int> &pj)
 {
-    int sum = 0;
-    for (int i = 0; i < v.size(); i++)
-        sum += v[i];
-    return sum;
-}
-
-bool sumSort(const pair<vector<int>,int> &pi, const pair<vector<int>,int> &pj)
-{
-    return sum(pi.first) < sum(pj.first);
+    for (int i = 0; i < pi.first.size(); i++)
+        if (pi.first[i] > pj.first[i])
+            return false;
+    return true;
 }
 
 // DEBUG
@@ -45,7 +40,7 @@ int main()
             }
             sort(sequences[i].first.begin(), sequences[i].first.end());
         }
-        sort(sequences.begin(), sequences.end(), sumSort);
+        sort(sequences.begin(), sequences.end(), seqSort);
 
         // DEBUG
         printSequences(sequences);
@@ -54,11 +49,14 @@ int main()
         int prev = 0;
         vector<int> answer;
         answer.push_back(sequences[prev].second);
-        for (int curr = 1; curr < k; prev++, curr++) { // TODO take care of when size < 1
+        for (int curr = 1; curr < k; curr++) { // TODO take care of when size < 1
             for (int j = 0; j < n; j++)
-                if (sequences[prev].first[j] > sequences[curr].first[j])
-                    continue;
+                if (sequences[curr].first[j] <= sequences[prev].first[j])
+                    goto continueOuter;
             answer.push_back(sequences[curr].second);
+            prev = curr;
+continueOuter:
+            curr = curr; // nothing
         }
         // then go up the lines and as long as prev[i] <= curr[i]
         // for 0 <= i <= n, add 1
