@@ -59,7 +59,7 @@ bool seqSort(const OrderedSeq &orderedSeqA, const OrderedSeq &orderedSeqB)
 bool nestsIn(const OrderedSeq &orderedSeqA, const OrderedSeq &orderedSeqB)
 {
     for (int i = 0; i < orderedSeqA.first.size(); i++)
-        if (orderedSeqA.first[i] > orderedSeqB.first[i])
+        if (orderedSeqA.first[i] >= orderedSeqB.first[i])
             return false;
     return true;
 }
