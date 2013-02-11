@@ -5,66 +5,128 @@
 
 using namespace std;
 
-// NOTE algo wrong (look at wrong.txt)
+typedef vector<int> Seq;
+typedef pair<Seq,int> OrderedSeq;
 
-bool seqSort(const pair<vector<int>,int> &pi, const pair<vector<int>,int> &pj)
+struct Node {
+    OrderedSeq val; // TODO this can be int
+    vector<Node> edges;
+    Node(OrderedSeq v) : val(v), edges(vector<Node>()) {}
+};
+
+typedef vector<Node> Graphs;
+
+// ========================= DEBUG
+void printSequence(const OrderedSeq &orderedSeq)
 {
-    for (int i = 0; i < pi.first.size(); i++)
-        if (pi.first[i] > pj.first[i])
+    cout << orderedSeq.second + 1 << ": ";
+    for (int i = 0; i < orderedSeq.first.size(); i++)
+        cout << orderedSeq.first[i] << " ";
+    cout << endl;
+}
+
+void printSequences(const vector<OrderedSeq> &orderedSeqs)
+{
+    for (int i = 0; i < orderedSeqs.size(); i++)
+        printSequence(orderedSeqs[i]);
+}
+
+void printGraphs(const Graphs &graphs, int depth=0)
+{
+    for (int i = 0; i < graphs.size(); i++) {
+        for (int j = 0; j < depth; j++)
+            cout << "  ";
+        printSequence(graphs[i].val);
+        printGraphs(graphs[i].edges, depth + 1);
+    }
+}
+// ========================= DEBUG
+
+// 1 2 4 7
+// 1 2 4 8
+// 1 4 7 9
+// 2 3 4 5
+// 2 7 8 9
+bool seqSort(const OrderedSeq &orderedSeqA, const OrderedSeq &orderedSeqB)
+{
+    for (int i = 0; i < orderedSeqA.first.size(); i++) {
+        if (orderedSeqA.first[i] == orderedSeqB.first[i])
+            continue;
+        return orderedSeqA.first[i] < orderedSeqB.first[i];
+    }
+}
+
+bool nestsIn(const OrderedSeq &orderedSeqA, const OrderedSeq &orderedSeqB)
+{
+    for (int i = 0; i < orderedSeqA.first.size(); i++)
+        if (orderedSeqA.first[i] > orderedSeqB.first[i])
             return false;
     return true;
 }
 
-// DEBUG
-void printSequences(const vector<pair<vector<int>,int> > &v)
+void addToGraphs(Graphs &graphs, OrderedSeq orderedSeq)
 {
-    for (int i = 0; i < v.size(); i++) {
-        cout << v[i].second + 1 << ": ";
-        for (int j = 0; j < v[i].first.size(); j++)
-            cout << v[i].first[j] << " ";
-        cout << endl;
+    bool added = false;
+    for (int i = 0; i < graphs.size(); i++) {
+        if (nestsIn(graphs[i].val, orderedSeq)) {
+            addToGraphs(graphs[i].edges, orderedSeq);
+            added = true;
+        }
     }
+    if (!added)
+        graphs.push_back(Node(orderedSeq));
+}
+
+// this is totally fucked
+vector<int> getLongestPath(const Graphs &graphs, vector<int> path=vector<int>())
+{
+    vector<int> longest(path); // lol so terrible
+    int len = 0;
+    for (int i = 0; i < graphs.size(); i++) {
+        vector<int> dup(path);
+        dup.push_back(graphs[i].val.second);
+        vector<int> ret = getLongestPath(graphs[i].edges, dup);
+        if (ret.size() > len) {
+            longest = ret;
+            len = ret.size();
+        }
+    }
+    return longest;
 }
 
 int main()
 {
     int k, n;
     int d;
+    int prev, size;
     while (cin >> k >> n) {
-        vector<pair<vector<int>,int> > sequences;
+        vector<OrderedSeq> orderedSeqs;
         for (int i = 0; i < k; i++) {
-            sequences.push_back(make_pair(vector<int>(), i));
+            orderedSeqs.push_back(make_pair(Seq(), i));
             for (int j = 0; j < n; j++) {
                 cin >> d;
-                sequences[i].first.push_back(d);
+                orderedSeqs[i].first.push_back(d);
             }
-            sort(sequences[i].first.begin(), sequences[i].first.end());
+            sort(orderedSeqs[i].first.begin(), orderedSeqs[i].first.end());
         }
-        sort(sequences.begin(), sequences.end(), seqSort);
+        sort(orderedSeqs.begin(), orderedSeqs.end(), seqSort);
+        //printSequences(orderedSeqs);
+        //cout << "*************************************" << endl;
+
+        Graphs graphs = vector<Node>();
+        for (int i = 0; i < orderedSeqs.size(); i++) {
+            addToGraphs(graphs, orderedSeqs[i]);
+        }
 
         // DEBUG
-        printSequences(sequences);
-        // DEBUG
+        // printGraphs(graphs);
 
-        int prev = 0;
-        vector<int> answer;
-        answer.push_back(sequences[prev].second);
-        for (int curr = 1; curr < k; curr++) { // TODO take care of when size < 1
-            for (int j = 0; j < n; j++)
-                if (sequences[curr].first[j] <= sequences[prev].first[j])
-                    goto continueOuter;
-            answer.push_back(sequences[curr].second);
-            prev = curr;
-continueOuter:
-            curr = curr; // nothing
-        }
-        // then go up the lines and as long as prev[i] <= curr[i]
-        // for 0 <= i <= n, add 1
-        int size = answer.size();
+        vector<int> longestPath = getLongestPath(graphs);
+        int size = longestPath.size();
         cout << size << endl;
-        for (int j = 0; j < size - 1; j++)
-            cout << answer[j] + 1 << " ";
-        cout << answer[size - 1] + 1 << endl;
+        for (int i = 0; i < size - 1; i++)
+            cout << longestPath[i] + 1 << " ";
+        cout << longestPath[size-1] + 1 << endl;
     }
     return 0;
 }
