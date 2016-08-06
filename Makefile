@@ -1,5 +1,5 @@
 CC:=clang++
-CFLAGS:=-lm -O2
+CFLAGS:=-lm -lcrypto -O2
 SHELL:=/bin/bash
 
 # Assume all directories are problems and all solutions are in C/C++
