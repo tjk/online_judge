@@ -1,44 +1,48 @@
+#include <algorithm>
 #include <iostream>
 #include <map>
 
 using namespace std;
 
-map<int,int> ccs;
+static map<int,int> _cycle_len_cache;
 
-int cc(int n)
+static int _cycle_len(int n)
 {
-    int _cc;
-    if ((_cc = ccs[n]))
-        return _cc;
+    int cl;
+
+    if ((cl = _cycle_len_cache[n]))
+        return cl;
+
     if (n % 2 == 1) {
-        _cc = 1 + cc(3 * n + 1);
+        cl = 1 + _cycle_len(3 * n + 1);
     } else {
-        _cc = 1 + cc(n / 2);
+        cl = 1 + _cycle_len(n / 2);
     }
-    ccs[n] = _cc;
-    return _cc;
+
+    _cycle_len_cache[n] = cl;
+    return cl;
 }
 
 int main()
 {
-    int _i, _j, i, j, k, cl, max;
-    ccs[1] = 1;
-    while (cin >> _i) {
-        cin >> _j;
-        max = 0;
-        if (_i > _j) {
-            i = _j;
-            j = _i;
-        } else {
-            i = _i;
-            j = _j;
+    _cycle_len_cache[1] = 1;
+
+    int a, b;
+    while (cin >> a) {
+        cin >> b;
+
+        int i = min(a, b);
+        int j = max(a, b);
+
+        int max_cl = 0;
+        for (int k = i; k <= j; ++k) {
+            int cl = _cycle_len(k);
+            if (cl > max_cl)
+                max_cl = cl;
         }
-        for (k = i; k <= j; k++) {
-            cl = cc(k);
-            if (cl > max)
-                max = cl;
-        }
-        cout << _i << " " << _j << " " << max << endl;
+
+        cout << a << " " << b << " " << max_cl << endl;
     }
+
     return 0;
 }
